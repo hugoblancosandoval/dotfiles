@@ -8,6 +8,63 @@
     (package-refresh-contents)
     (package-install 'use-package)))
 
+;; Disable welcome screen
+(setq inhibit-startup-screen t)
+
+;; Ask for emacs to confirm exit
+(setq confirm-kill-emacs 'y-or-n-p)
+
+;; Anything that writes to the buffer while the region is active will overwrite it, including paste,
+(delete-selection-mode 1)
+
+;; disable ctrl-x ctrl-z that send emacs to the background
+(global-unset-key (kbd "C-z"))
+
+;; enable line number for all!
+;;(global-linum-mode t)
+
+;; yes/no prompts to y/n
+(fset 'yes-or-no-p 'y-or-n-p)
+
+;; Ctrl-h map to delete-backward
+(global-set-key (kbd "C-?") 'help-command)
+(global-set-key (kbd "C-h") 'delete-backward-char)
+(global-set-key (kbd "M-h") 'backward-kill-word)
+(global-set-key (kbd "RET") 'newline-and-indent)
+
+;; Mapping control+cursor to change window pane size
+(global-set-key (kbd "<C-up>") 'shrink-window)
+(global-set-key (kbd "<C-down>") 'enlarge-window)
+(global-set-key (kbd "<C-left>") 'shrink-window-horizontally)
+(global-set-key (kbd "<C-right>") 'enlarge-window-horizontally)
+
+;; Making ctr-b ctrl-k the same as ctrl-b k
+(global-set-key (kbd "S-k") 'kill-buffer)
+
+;; Disable ctrl-x, ctrl-b
+(global-unset-key [(control x)(control b)])
+
+;; Disable ctrl-x ctrl-z that minimizes emacs
+(global-unset-key [(control x)(control z)])
+
+;; Disable ctrl-x m that opens the email composition
+(global-unset-key (kbd "C-x m"))
+
+;; disable the lockfiles
+(setq create-lockfile nil)
+
+;; UTF-8 as default encoding
+(set-language-environment "UTF-8")
+
+;; Setting font
+(when (member "JetBrains Mono" (font-family-list))
+  (set-frame-font "JetBrains Mono 16" nil t))
+
+;; Set font-size
+(set-face-attribute 'default nil :height 160)
+;; Disable sound bell
+(setq visible-bell t)
+
 ;; IDO
 (setq ido-enable-flex-matching t)
 (setq ido-everywhere t)
@@ -16,7 +73,6 @@
 ;; Built-in project package
 (require 'project)
 (global-set-key (kbd "C-x p f") #'project-find-file)
-
 
 ;; General settings
 (delete-selection-mode t)
@@ -77,9 +133,14 @@
 
 ;; theme
 ;; Other themes I liked: exotica, subatomic, noctilux
-(use-package tron-legacy-theme
-  :ensure t
-  :config (load-theme 'tron-legacy t))
+(add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
+(if (display-graphic-p) 
+    (use-package cherry-blossom-theme
+      :ensure t 
+      :config (load-theme 'cherry-blossom))
+    (use-package tron-legacy-theme
+      :ensure t
+      :config (load-theme 'tron-legacy t)))
 
 ;; lsp-mode
 (setq lsp-log-io nil) ;; Don't log everything = speed
@@ -114,3 +175,18 @@
                               '("\\.jsx?\\'" . prettier-js-mode))
 			     (enable-minor-mode
                               '("\\.tsx?\\'" . prettier-js-mode))))
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(custom-safe-themes
+   '("9ee253fcdb48535bf16df2700582b0a11fe99390b018755b941140f2fcdff219" default))
+ '(package-selected-packages
+   '(prettier-js lsp-ui lsp-mode tron-legacy-theme magit company web-mode json-mode expand-region which-key exec-path-from-shell)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
