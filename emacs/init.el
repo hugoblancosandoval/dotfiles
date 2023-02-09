@@ -50,6 +50,29 @@
 ;; Disable ctrl-x m that opens the email composition
 (global-unset-key (kbd "C-x m"))
 
+;; Ctrl-h map to delete-backward
+(global-set-key (kbd "C-?") 'help-command)
+(global-set-key (kbd "C-h") 'delete-backward-char)
+(global-set-key (kbd "M-h") 'backward-kill-word)
+
+;; Mapping control+cursor to change window pane size
+(global-set-key (kbd "<C-up>") 'shrink-window)
+(global-set-key (kbd "<C-down>") 'enlarge-window)
+(global-set-key (kbd "<C-left>") 'shrink-window-horizontally)
+(global-set-key (kbd "<C-right>") 'enlarge-window-horizontally)
+
+;; Making ctr-b ctrl-k the same as ctrl-b k
+(global-set-key (kbd "S-k") 'kill-buffer)
+
+;; Disable ctrl-x, ctrl-b
+(global-unset-key [(control x)(control b)])
+
+;; Disable ctrl-x ctrl-z that minimizes emacs
+(global-unset-key [(control x)(control z)])
+
+;; Disable ctrl-x m that opens the email composition
+(global-unset-key (kbd "C-x m"))
+
 ;; disable the lockfiles
 (setq create-lockfile nil)
 
@@ -64,6 +87,45 @@
 (set-face-attribute 'default nil :height 160)
 ;; Disable sound bell
 (setq visible-bell t)
+
+;; Disable super-x m that minimizes emacs
+(global-unset-key (kbd "s-m"))
+
+;; Disable super-h that hides emacs
+(global-unset-key (kbd "s-h"))
+
+;; Disable super-n that creates a new frame
+(global-unset-key (kbd "s-n"))
+
+;; Browse the kill ring in a popup menu
+(global-set-key (kbd "C-c C-y") '(lambda ()
+                                 (interactive)
+                                 (popup-menu 'yank-menu)))
+
+;; Kill the minibuffer on blur
+(defun stop-using-minibuffer ()
+  "kill the minibuffer"
+  (when (and (>= (recursion-depth) 1) (active-minibuffer-window))
+    (abort-recursive-edit)))
+
+(add-hook 'mouse-leave-buffer-hook 'stop-using-minibuffer)
+
+;; set column-mode on
+(setq column-number-mode t)
+
+;; active wind-move!!
+(when (fboundp 'windmove-default-keybindings)
+  (windmove-default-keybindings))
+
+(use-package rainbow-delimiters
+  :ensure t
+  :config '(add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
+
+(use-package highlight-symbol :ensure t)
+(global-set-key [f3] 'highlight-symbol-next)
+(global-set-key [(control f3)] 'highlight-symbol)
+(global-set-key [(shift f3)] 'highlight-symbol-prev)
+(global-set-key [(meta f3)] 'highlight-symbol-query-replace)
 
 ;; IDO
 (setq ido-enable-flex-matching t)
@@ -131,6 +193,12 @@
   :bind (
 	 ("C-x g" . magit-status)))
 
+;; never loose what you wrote on the scratch
+(use-package everlasting-scratch :ensure t)
+
+;; markdown mode
+(use-package markdown-mode :ensure t :config (setq initial-major-mode 'markdown-mode))
+
 ;; theme
 ;; Other themes I liked: exotica, subatomic, noctilux
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
@@ -141,6 +209,11 @@
     (use-package tron-legacy-theme
       :ensure t
       :config (load-theme 'tron-legacy t)))
+
+;; elpy
+(use-package elpy
+  :ensure t
+  :config (elpy-enable))
 
 ;; lsp-mode
 (setq lsp-log-io nil) ;; Don't log everything = speed
@@ -183,7 +256,7 @@
  '(custom-safe-themes
    '("9ee253fcdb48535bf16df2700582b0a11fe99390b018755b941140f2fcdff219" default))
  '(package-selected-packages
-   '(prettier-js lsp-ui lsp-mode tron-legacy-theme magit company web-mode json-mode expand-region which-key exec-path-from-shell)))
+   '(highlight-symbol rainbow-delimiters everlasting-scratch elpy prettier-js lsp-ui lsp-mode tron-legacy-theme magit company web-mode json-mode expand-region which-key exec-path-from-shell)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
