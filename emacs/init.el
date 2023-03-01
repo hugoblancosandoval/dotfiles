@@ -39,7 +39,13 @@
 (global-set-key (kbd "<C-right>") 'enlarge-window-horizontally)
 
 ;; Making ctr-b ctrl-k the same as ctrl-b k
-(global-set-key (kbd "S-k") 'kill-buffer)
+(global-set-key (kbd "s-k") 'kill-buffer)
+
+;; Making S-b the same as ctrl-x
+(global-set-key (kbd "s-b") 'switch-to-buffer)
+
+;; Remove all other windows
+(global-set-key (kbd "s-1") 'delete-other-windows)
 
 ;; Disable ctrl-x, ctrl-b
 (global-unset-key [(control x)(control b)])
@@ -201,11 +207,12 @@
 
 ;; theme
 ;; Other themes I liked: exotica, subatomic, noctilux
+(setq custom-safe-themes t) ;; Treat all custom themes as safe
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
 (if (display-graphic-p) 
     (use-package cherry-blossom-theme
       :ensure t 
-      :config (load-theme 'cherry-blossom))
+      :config (load-theme 'cherry-blossom t))
     (use-package tron-legacy-theme
       :ensure t
       :config (load-theme 'tron-legacy t)))
@@ -214,6 +221,16 @@
 (use-package elpy
   :ensure t
   :config (elpy-enable))
+
+;; Enable Flycheckn for pythin
+(when (require 'flycheck nil t)
+  (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
+  (add-hook 'elpy-mode-hook 'flycheck-mode))
+
+;; Enable autopep8
+(use-package py-autopep8
+  :ensure t
+  :config #'(add-hook 'elpy-mode-hook 'py-autopep8-enable-on-save))
 
 ;; lsp-mode
 (setq lsp-log-io nil) ;; Don't log everything = speed
@@ -248,6 +265,33 @@
                               '("\\.jsx?\\'" . prettier-js-mode))
 			     (enable-minor-mode
                               '("\\.tsx?\\'" . prettier-js-mode))))
+
+;; Testing config for orgmode todo list handling
+; set key for agenda
+(global-set-key (kbd "C-c a") 'org-agenda)
+
+;;file to save todo items
+(setq org-agenda-files (quote ("/Users/hugo/.emacs.d/todo.org")))
+
+;;set priority range from A to C with default A
+(setq org-highest-priority ?A)
+(setq org-lowest-priority ?C)
+(setq org-default-priority ?A)
+
+;;set colours for priorities
+(setq org-priority-faces '((?A . (:foreground "#8c1eff" :weight bold))
+                           (?B . (:foreground "#f222ff"))
+                           (?C . (:foreground "#ff2975"))))
+
+;;open agenda in current window
+(setq org-agenda-window-setup (quote current-window))
+
+;;capture todo items using C-c c t
+(define-key global-map (kbd "C-c c") 'org-capture)
+(setq org-capture-templates
+      '(("t" "todo" entry (file+headline "/Users/hugo/.emacs.d/todo.org" "Tasks")
+         "* TODO [#A] %?")))
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -256,7 +300,7 @@
  '(custom-safe-themes
    '("9ee253fcdb48535bf16df2700582b0a11fe99390b018755b941140f2fcdff219" default))
  '(package-selected-packages
-   '(highlight-symbol rainbow-delimiters everlasting-scratch elpy prettier-js lsp-ui lsp-mode tron-legacy-theme magit company web-mode json-mode expand-region which-key exec-path-from-shell)))
+   '(py-autopep8 highlight-symbol rainbow-delimiters everlasting-scratch elpy prettier-js lsp-ui lsp-mode tron-legacy-theme magit company web-mode json-mode expand-region which-key exec-path-from-shell)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
