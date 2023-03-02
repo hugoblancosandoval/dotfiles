@@ -20,17 +20,8 @@
 ;; disable ctrl-x ctrl-z that send emacs to the background
 (global-unset-key (kbd "C-z"))
 
-;; enable line number for all!
-;;(global-linum-mode t)
-
 ;; yes/no prompts to y/n
 (fset 'yes-or-no-p 'y-or-n-p)
-
-;; Ctrl-h map to delete-backward
-(global-set-key (kbd "C-?") 'help-command)
-(global-set-key (kbd "C-h") 'delete-backward-char)
-(global-set-key (kbd "M-h") 'backward-kill-word)
-(global-set-key (kbd "RET") 'newline-and-indent)
 
 ;; Mapping control+cursor to change window pane size
 (global-set-key (kbd "<C-up>") 'shrink-window)
@@ -60,21 +51,6 @@
 (global-set-key (kbd "C-?") 'help-command)
 (global-set-key (kbd "C-h") 'delete-backward-char)
 (global-set-key (kbd "M-h") 'backward-kill-word)
-
-;; Mapping control+cursor to change window pane size
-(global-set-key (kbd "<C-up>") 'shrink-window)
-(global-set-key (kbd "<C-down>") 'enlarge-window)
-(global-set-key (kbd "<C-left>") 'shrink-window-horizontally)
-(global-set-key (kbd "<C-right>") 'enlarge-window-horizontally)
-
-;; Making ctr-b ctrl-k the same as ctrl-b k
-(global-set-key (kbd "S-k") 'kill-buffer)
-
-;; Disable ctrl-x, ctrl-b
-(global-unset-key [(control x)(control b)])
-
-;; Disable ctrl-x ctrl-z that minimizes emacs
-(global-unset-key [(control x)(control z)])
 
 ;; Disable ctrl-x m that opens the email composition
 (global-unset-key (kbd "C-x m"))
