@@ -78,7 +78,6 @@
 
 (add-hook 'mouse-leave-buffer-hook 'stop-using-minibuffer)
 
-
 ;; Mouse active in terminal
 (unless (display-graphic-p)
   (xterm-mouse-mode 1)
@@ -209,7 +208,13 @@
 (nano-theme-set-dark)
 (nano-refresh-theme)
 
-;; TODO: Start configuring the packages
+;; Start configuring the packages
+(use-package persistent-scratch 
+  :straight t
+  :config '(persistent-scratch-setup-default))
+
+(persistent-scratch-setup-default)
+
 (use-package rainbow-delimiters
   :straight t
   :config '(add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
@@ -264,6 +269,7 @@
 
 ;; never loose what you wrote on the scratch
 (use-package everlasting-scratch :straight t)
+(add-hook 'after-init-hook 'everlasting-scratch-mode)
 
 ;; markdown mode
 (use-package markdown-mode :straight t :config (setq initial-major-mode 'markdown-mode))
@@ -313,7 +319,12 @@
 			     (enable-minor-mode
                               '("\\.tsx?\\'" . prettier-js-mode))))
 
-;; TODO orgmode agenda
+;; Clojure mode and CIDER
+(use-package clojure-mode :straight t)
+(use-package cider :straight t)
+
+(use-package yaml-mode :straight t)
+;; orgmode agenda
 (global-set-key (kbd "C-c a") 'org-agenda) ; set key for agenda
 
 ;; File to save todo items
