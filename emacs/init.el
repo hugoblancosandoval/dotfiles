@@ -11,6 +11,8 @@
 ;; Use RET to open org-mode links, including those in quick-help.org
 (setq org-return-follows-link t)
 
+;; Enable C-x C-u for upper case a region
+(put 'upcase-region 'disabled nil)
 ;; Anything that writes to the buffer while the region is active will overwrite it, including paste,
 (delete-selection-mode 1)
 
@@ -19,7 +21,7 @@
 
 ;; Mapping control+cursor to change window pane size
 (global-set-key (kbd "<C-up>") 'shrink-window)
-(global-set-key (kbd "<C-down>") 'enlarge-window)
+(global-set-key (kbd "<C-down>") 'enlarge-window) 
 (global-set-key (kbd "<C-left>") 'shrink-window-horizontally)
 (global-set-key (kbd "<C-right>") 'enlarge-window-horizontally)
 
@@ -115,12 +117,16 @@
 
 ;; y/n for  answering yes/no questions
 (fset 'yes-or-no-p 'y-or-n-p)
+
 ;; Size of temporary buffers
 (temp-buffer-resize-mode)
 (setq temp-buffer-max-height 8)
 
 ;; Minimum window height
 (setq window-min-height 1)
+
+;; Always follow the symlinks!
+(setq vc-follow-symlinks t)
 
 (delete-selection-mode t) ;; Substitute what you selected with yanked
 (setq gc-cons-threshold 100000000)
@@ -205,19 +211,44 @@
 (require 'nano-theme-light)
 (require 'nano-theme-dark)
 
-(nano-theme-set-dark)
+(defun nano-theme-set-spaceduck ()
+  (setq frame-background-mode 'dark)
+  (setq nano-color-foreground "#ecf0c1")
+  (setq nano-color-background "#0f111b")
+  (setq nano-color-highlight  "#1b1c36")
+  (setq nano-color-critical   "#e33400")
+  (setq nano-color-salient    "#00a4cc")
+  (setq nano-color-strong     "#e39400")
+  (setq nano-color-popout     "#f2ce00")
+  (setq nano-color-subtle     "#7a5ccc")
+  (setq nano-color-faded      "#b3a1e6"))
+(nano-theme-set-spaceduck)
+;; (nano-theme-set-dark) ;; Default theme
 (nano-refresh-theme)
 
+(require 'nano-modeline)
+(require 'nano-bindings)
 ;; Start configuring the packages
+
+;; TODO add a :bind like in the other below to overwrite c-x c-s to save in persistent-scratch
 (use-package persistent-scratch 
   :straight t
   :config '(persistent-scratch-setup-default))
 
 (persistent-scratch-setup-default)
 
+(use-package yafolding
+  :straight t
+  :config '(add-hook 'prog-mode-hook #'yafolding-mode))
+
 (use-package rainbow-delimiters
   :straight t
   :config '(add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
+
+(use-package swiper
+  :straight t
+  :bind (("C-s" . swiper)
+	 ("C-r" . swiper)))
 
 (use-package highlight-symbol :straight t)
 (global-set-key [f3] 'highlight-symbol-next)
@@ -272,7 +303,7 @@
 (add-hook 'after-init-hook 'everlasting-scratch-mode)
 
 ;; markdown mode
-(use-package markdown-mode :straight t :config (setq initial-major-mode 'markdown-mode))
+(use-package markdown-mode :straight t)
 
 ;; elpy
 (use-package elpy
@@ -324,28 +355,49 @@
 (use-package cider :straight t)
 
 (use-package yaml-mode :straight t)
-;; orgmode agenda
-(global-set-key (kbd "C-c a") 'org-agenda) ; set key for agenda
+(use-package hackernews :straight t)
 
-;; File to save todo items
-(setq org-agenda-files (quote ("/Users/hugo/.emacs.d/todo.org")))
+;; Github copilot
+(use-package copilot
+  :straight (:host github 
+		   :repo "zerolfx/copilot.el"
+		   :files ("dist" "*.el"))
+  :ensure t
+  :hook (prog-mode-hook 'copilot-mode))
 
-;; Set priority range from A to C with default A
-(setq org-highest-priority ?A)
-(setq org-lowest-priority ?C)
-(setq org-default-priority ?A)
+(with-eval-after-load 'company
+  ;; disable inline previews
+  (delq 'company-preview-if-just-one-frontend company-frontends))
+  
+;; I might need to enable this in feature, currently throwing errors when I try to use it.
+;; leaving this here for future reference.
+;; (define-key copilot-completion-map (kbd "<tab>") 'copilot-accept-completion)
+;; (define-key copilot-completion-map (kbd "TAB") 'copilot-accept-completion)
 
-;; Set colours for priorities
-(setq org-priority-faces '((?A . (:foreground "#8c1eff" :weight bold))
-                           (?B . (:foreground "#f222ff"))
-                           (?C . (:foreground "#ff2975"))))
+;; ORG-MODE and related configurations
+(setq org-todo-keywords
+      (quote ((sequence "TODO(t)" "DOING(g)" "|" "DONE(d)"))))
 
-;; Open agenda in current window
-(setq org-agenda-window-setup (quote current-window))
+;; Set org-mode export backend, I added the md option
+(setq org-export-backends '(ascii html icalendar latex md odt))
 
-;; Capture todo items using C-c c t
-(define-key global-map (kbd "C-c c") 'org-capture)
-(setq org-capture-templates
-      '(("t" "todo" entry (file+headline "/Users/hugo/.emacs.d/todo.org" "Tasks")
-         "* TODO [#A] %?")))
+;; Add backends for org-babel
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '((shell . t)))
+
+(setq org-src-preserve-indentation t) ;; This avoids reindentation on SRC blocks
+
+;; TODO: How do I manage my TODOs in org-roam????
+(use-package org-roam
+  :straight t
+  :custom
+  (org-roam-directory "~/usr/notes")
+  :bind (("C-c n l" . org-roam-buffer-toggle)
+         ("C-c n f" . org-roam-node-find)
+         ("C-c n i" . org-roam-node-insert)
+  :map org-mode-map
+         ("C-M-i"    . completion-at-point))
+  :config
+  (org-roam-setup))
 
