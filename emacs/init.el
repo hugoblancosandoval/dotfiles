@@ -191,44 +191,48 @@
 ;; Install use-package
 (straight-use-package 'use-package)
 
-(straight-use-package
- '(nano-emacs :type git :host github :repo "rougier/nano-emacs"))
+;; (straight-use-package
+;;  '(nano-emacs :type git :host github :repo "rougier/nano-emacs"))
 
 ;; Default layout (optional)
-(require 'nano-layout)
+;; (require 'nano-layout)
 
 ;; Theming Command line options (this will cancel warning messages)
-(add-to-list 'command-switch-alist '("-dark"   . (lambda (args))))
-(add-to-list 'command-switch-alist '("-light"  . (lambda (args))))
-(add-to-list 'command-switch-alist '("-default"  . (lambda (args))))
-(add-to-list 'command-switch-alist '("-no-splash" . (lambda (args))))
-(add-to-list 'command-switch-alist '("-no-help" . (lambda (args))))
-(add-to-list 'command-switch-alist '("-compact" . (lambda (args))))
+;; (add-to-list 'command-switch-alist '("-dark"   . (lambda (args))))
+;; (add-to-list 'command-switch-alist '("-light"  . (lambda (args))))
+;; (add-to-list 'command-switch-alist '("-default"  . (lambda (args))))
+;; (add-to-list 'command-switch-alist '("-no-splash" . (lambda (args))))
+;; (add-to-list 'command-switch-alist '("-no-help" . (lambda (args))))
+;; (add-to-list 'command-switch-alist '("-compact" . (lambda (args))))
 
 ;; Theme
-(require 'nano-faces)
-(require 'nano-theme)
-(require 'nano-theme-light)
-(require 'nano-theme-dark)
+;; (require 'nano-faces)
+;; (require 'nano-theme)
+;; (require 'nano-theme-light)
+;; (require 'nano-theme-dark)
 
-(defun nano-theme-set-spaceduck ()
-  (setq frame-background-mode 'dark)
-  (setq nano-color-foreground "#ecf0c1")
-  (setq nano-color-background "#0f111b")
-  (setq nano-color-highlight  "#1b1c36")
-  (setq nano-color-critical   "#e33400")
-  (setq nano-color-salient    "#00a4cc")
-  (setq nano-color-strong     "#e39400")
-  (setq nano-color-popout     "#f2ce00")
-  (setq nano-color-subtle     "#7a5ccc")
-  (setq nano-color-faded      "#b3a1e6"))
-(nano-theme-set-spaceduck)
+;; (defun nano-theme-set-spaceduck ()
+;;   (setq frame-background-mode 'dark)
+;;   (setq nano-color-foreground "#ecf0c1")
+;;   (setq nano-color-background "#0f111b")
+;;   (setq nano-color-highlight  "#1b1c36")
+;;   (setq nano-color-critical   "#e33400")
+;;   (setq nano-color-salient    "#00a4cc")
+;;   (setq nano-color-strong     "#e39400")
+;;   (setq nano-color-popout     "#f2ce00")
+;;   (setq nano-color-subtle     "#7a5ccc")
+;;   (setq nano-color-faded      "#b3a1e6"))
+;; ;; (nano-theme-set-spaceduck)
 ;; (nano-theme-set-dark) ;; Default theme
-(nano-refresh-theme)
+;; (nano-refresh-theme)
 
-(require 'nano-modeline)
-(require 'nano-bindings)
-;; Start configuring the packages
+;; (require 'nano-modeline)
+;; (require 'nano-bindings)
+;; ;; Start configuring the packages
+
+;; Theme
+(use-package inkpot-theme :straight t)
+(load-theme 'inkpot)
 
 ;; TODO add a :bind like in the other below to overwrite c-x c-s to save in persistent-scratch
 (use-package persistent-scratch 
@@ -305,21 +309,6 @@
 ;; markdown mode
 (use-package markdown-mode :straight t)
 
-;; elpy
-(use-package elpy
-  :straight t
-  :config (elpy-enable))
-
-;; Enable Flycheckn for pythin
-(when (require 'flycheck nil t)
-  (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
-  (add-hook 'elpy-mode-hook 'flycheck-mode))
-
-;; Enable autopep8
-(use-package py-autopep8
-  :straight t
-  :config #'(add-hook 'elpy-mode-hook 'py-autopep8-enable-on-save))
-
 (setq lsp-log-io nil) ;; Don't log everything = speed
 (setq lsp-keymap-prefix "C-c l")
 (setq lsp-restart 'auto-restart)
@@ -357,23 +346,6 @@
 (use-package yaml-mode :straight t)
 (use-package hackernews :straight t)
 
-;; Github copilot
-(use-package copilot
-  :straight (:host github 
-		   :repo "zerolfx/copilot.el"
-		   :files ("dist" "*.el"))
-  :ensure t
-  :hook (prog-mode-hook 'copilot-mode))
-
-(with-eval-after-load 'company
-  ;; disable inline previews
-  (delq 'company-preview-if-just-one-frontend company-frontends))
-  
-;; I might need to enable this in feature, currently throwing errors when I try to use it.
-;; leaving this here for future reference.
-;; (define-key copilot-completion-map (kbd "<tab>") 'copilot-accept-completion)
-;; (define-key copilot-completion-map (kbd "TAB") 'copilot-accept-completion)
-
 ;; ORG-MODE and related configurations
 (setq org-todo-keywords
       (quote ((sequence "TODO(t)" "DOING(g)" "|" "DONE(d)"))))
@@ -401,3 +373,16 @@
   :config
   (org-roam-setup))
 
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(custom-safe-themes
+   '("db52f4b66b479bf126a5f9e922f47164ea61f78be31e8be38f238a85437ab196" default)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
