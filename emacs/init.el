@@ -8,11 +8,17 @@
     (package-refresh-contents)
     (package-install 'use-package)))
 
+;; Keep this file as clean as possible and move custom variables to its own file.
+(setq custom-file (concat user-emacs-directory "/custom.el"))
+
 ;; Disable welcome screen
 (setq inhibit-startup-screen t)
 
 ;; Ask for emacs to confirm exit
 (setq confirm-kill-emacs 'y-or-n-p)
+
+;; Always follow version controlled links
+(setq vc-follow-symlinks t)
 
 ;; Anything that writes to the buffer while the region is active will overwrite it, including paste,
 (delete-selection-mode 1)
@@ -54,6 +60,9 @@
 
 ;; Disable ctrl-x m that opens the email composition
 (global-unset-key (kbd "C-x m"))
+
+;; Super-r to revert buffer
+(global-set-key (kbd "s-r") 'revert-buffer)
 
 ;; disable the lockfiles
 (setq create-lockfile nil)
@@ -127,6 +136,17 @@
 (setq create-lockfiles nil)
 (global-display-line-numbers-mode)
 
+
+(setq-default js2-basic-offset 2)
+(setq-default js-indent-level 2)
+(defun my-web-mode-hook ()
+  (setq web-mode-markup-indent-offset 2)
+  (setq web-mode-css-indent-offset 2)
+  (setq web-mode-code-indent-offset 2)
+  (setq web-mode-indent-style 2)
+  )
+(add-hook 'web-mode-hook  'my-web-mode-hook)
+  
 ;; Loads all your shell configs, makes it easier to load other binaries that emacs might use
 (use-package exec-path-from-shell
   :ensure t
@@ -149,18 +169,34 @@
 (use-package json-mode
   :ensure t)
 
-;; web-mode
-(setq web-mode-markup-indent-offset 2)
-(setq web-mode-code-indent-offset 2)
-(setq web-mode-css-indent-offset 2)
-(use-package web-mode
+(use-package tree-sitter
   :ensure t
-  :mode (("\\.js\\'" . web-mode)
-	 ("\\.jsx\\'" .  web-mode)
-	 ("\\.ts\\'" . web-mode)
-	 ("\\.tsx\\'" . web-mode)
-	 ("\\.html\\'" . web-mode))
-  :commands web-mode)
+  :config
+  ;; activate tree-sitter on any buffer containing code for which it has a parser available
+  (global-tree-sitter-mode)
+  (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode))
+
+(use-package typescript-mode
+  :ensure t
+  :after tree-sitter
+  :config
+  ;; we choose this instead of tsx-mode so that eglot can automatically figure out language for server
+  ;; see https://github.com/joaotavora/eglot/issues/624 and https://github.com/joaotavora/eglot#handling-quirky-servers
+  (define-derived-mode typescriptreact-mode typescript-mode
+    "TypeScript TSX")
+
+  ;; use our derived mode for tsx files
+  (add-to-list 'auto-mode-alist '("\\.tsx?\\'" . typescriptreact-mode))
+  ;; by default, typescript-mode is mapped to the treesitter typescript parser
+  ;; use our derived mode to map both .tsx AND .ts -> typescriptreact-mode -> treesitter tsx
+  (add-to-list 'tree-sitter-major-mode-language-alist '(typescriptreact-mode . tsx))
+
+  (setq typescript-indent-level 2))
+
+;; Ensure Eglot is launched on Typescript buffers
+(use-package eglot :ensure t)
+(add-hook 'typescript-mode-hook 'eglot-ensure)
+(setq eglot-events-buffer-size 0)
 
 ;; company
 (setq company-minimum-prefix-length 1
@@ -168,12 +204,12 @@
 (use-package company
   :ensure t
   :config (global-company-mode t))
+(add-hook 'after-init-hook 'global-company-mode)
 
 ;; magit
 (use-package magit
   :ensure t
-  :bind (
-	 ("C-x g" . magit-status)))
+  :bind (("C-x g" . magit-status)))
 
 ;; never loose what you wrote on the scratch
 (use-package everlasting-scratch :ensure t)
@@ -186,47 +222,30 @@
 (setq custom-safe-themes t) ;; Treat all custom themes as safe
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
 (if (display-graphic-p) 
-    (use-package cherry-blossom-theme
+    (use-package weyland-yutani-theme
       :ensure t 
-      :config (load-theme 'cherry-blossom t))
+      :config (load-theme 'weyland-yutani t))
     (use-package tron-legacy-theme
       :ensure t
       :config (load-theme 'tron-legacy t)))
 
-;; elpy
-(use-package elpy
+(use-package yaml-mode :ensure t)
+(use-package yafolding :ensure t)
+(use-package hackernews :ensure t)
+(use-package dockerfile-mode :ensure t)
+
+(setq web-mode-enable-auto-indentation nil)
+
+(use-package projectile 
   :ensure t
-  :config (elpy-enable))
+  :config (define-key projectile-mode-map (kbd "s-p") 'projectile-command-map))
+(projectile-mode 1)
 
-;; Enable Flycheckn for pythin
-(when (require 'flycheck nil t)
-  (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
-  (add-hook 'elpy-mode-hook 'flycheck-mode))
-
-;; Enable autopep8
-(use-package py-autopep8
+;; Treemacs + treeacs-projectile
+(use-package treemacs
   :ensure t
-  :config #'(add-hook 'elpy-mode-hook 'py-autopep8-enable-on-save))
-
-;; lsp-mode
-(setq lsp-log-io nil) ;; Don't log everything = speed
-(setq lsp-keymap-prefix "C-c l")
-(setq lsp-restart 'auto-restart)
-(setq lsp-ui-sideline-show-diagnostics t)
-(setq lsp-ui-sideline-show-hover t)
-(setq lsp-ui-sideline-show-code-actions t)
-
-(use-package lsp-mode
-  :ensure t
-  :hook (
-	 (web-mode . lsp-deferred)
-	 (lsp-mode . lsp-enable-which-key-integration)
-	 )
-  :commands lsp-deferred)
-
-(use-package lsp-ui
-  :ensure t
-  :commands lsp-ui-mode)
+  :bind (:map global-map
+	      ("<f12>" . treemacs)))
 
 (defun enable-minor-mode (my-pair)
   "Enable minor mode if filename match the regexp.  MY-PAIR is a cons cell (regexp . minor-mode)."
@@ -234,52 +253,41 @@
       (if (string-match (car my-pair) buffer-file-name)
 	  (funcall (cdr my-pair)))))
 
-(use-package prettier-js
-  :ensure t)
-(add-hook 'web-mode-hook #'(lambda ()
-                             (enable-minor-mode
-                              '("\\.jsx?\\'" . prettier-js-mode))
-			     (enable-minor-mode
-                              '("\\.tsx?\\'" . prettier-js-mode))))
+;; ORG-MODE and related configurations
+(setq org-todo-keywords
+      (quote ((sequence "TODO(t)" "DOING(g)" "|" "DONE(d)"))))
 
-;; Testing config for orgmode todo list handling
-; set key for agenda
-(global-set-key (kbd "C-c a") 'org-agenda)
+;; Set org-mode export backend, I added the md option
+(setq org-export-backends '(ascii html icalendar latex md odt))
 
-;;file to save todo items
-(setq org-agenda-files (quote ("/Users/hugo/.emacs.d/todo.org")))
+;; Add backends for org-babel
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '((shell . t)))
 
-;;set priority range from A to C with default A
-(setq org-highest-priority ?A)
-(setq org-lowest-priority ?C)
-(setq org-default-priority ?A)
+(setq org-src-preserve-indentation t) ;; This avoids reindentation on SRC blocks
+(setq org-hide-emphasis-markers t) ;; Hide the formatting markers
 
-;;set colours for priorities
-(setq org-priority-faces '((?A . (:foreground "#8c1eff" :weight bold))
-                           (?B . (:foreground "#f222ff"))
-                           (?C . (:foreground "#ff2975"))))
+;; TODO: How do I manage my TODOs in org-roam????
+(use-package org-roam
+  :ensure t
+  :custom
+  (org-roam-directory "~/usr/notes")
+  :bind (("C-c n l" . org-roam-buffer-toggle)
+         ("C-c n f" . org-roam-node-find)
+         ("C-c n i" . org-roam-node-insert)
+  :map org-mode-map
+         ("C-M-i"    . completion-at-point))
+  :config
+  (org-roam-setup))
 
-;;open agenda in current window
-(setq org-agenda-window-setup (quote current-window))
+;; Org-babel
+(require 'ob-js)
+(add-to-list 'org-babel-load-languages '(js . t))
+(org-babel-do-load-languages 'org-babel-load-languages org-babel-load-languages)
+(add-to-list 'org-babel-tangle-lang-exts '("js" . "js"))
 
-;;capture todo items using C-c c t
-(define-key global-map (kbd "C-c c") 'org-capture)
-(setq org-capture-templates
-      '(("t" "todo" entry (file+headline "/Users/hugo/.emacs.d/todo.org" "Tasks")
-         "* TODO [#A] %?")))
-
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(custom-safe-themes
-   '("9ee253fcdb48535bf16df2700582b0a11fe99390b018755b941140f2fcdff219" default))
- '(package-selected-packages
-   '(py-autopep8 highlight-symbol rainbow-delimiters everlasting-scratch elpy prettier-js lsp-ui lsp-mode tron-legacy-theme magit company web-mode json-mode expand-region which-key exec-path-from-shell)))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
+(defun my-org-archive-done-tasks ()
+  (interactive)
+  (org-map-entries 'org-archive-subtree "/DONE" 'file))
+(put 'upcase-region 'disabled nil)
