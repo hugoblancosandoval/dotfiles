@@ -106,6 +106,9 @@ alias la="exa --icons --all "
 alias ll="exa --icons --long"
 alias lla="exa --icons --long --all --header"
 alias gs="git status"
+alias edit="emacsclient -t"
+
+export EDITOR="emacsclient -t"
 
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
