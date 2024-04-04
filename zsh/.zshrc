@@ -107,6 +107,8 @@ alias ll="exa --icons --long"
 alias lla="exa --icons --long --all --header"
 alias gs="git status"
 alias edit="emacsclient -t"
+alias pbcopy='xclip -selection clipboard'
+alias pbpaste='xclip -selection clipboard -o'
 
 export EDITOR="emacsclient -t"
 
