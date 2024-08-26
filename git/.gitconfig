@@ -1,0 +1,8 @@
+[user]
+	email = hugo.blanco.sandoval@gmail.com
+	name = Hugo Blanco Sandoval
+[github]
+	user = hugoblancosandoval
+	oauth-token = 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
+[core]
+    editor = emacsclient -t 
