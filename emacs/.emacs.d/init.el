@@ -187,6 +187,6 @@
                                      (interactive)
                                      (popup-menu 'yank-menu))))
 
-
 (load-file (expand-file-name "packages.el" user-emacs-directory))
-
+(load-file (expand-file-name "programming.el" user-emacs-directory))
+(load-file (expand-file-name "themes.el" user-emacs-directory))
