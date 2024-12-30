@@ -89,9 +89,20 @@
   ("C-c n d" . org-roam-dailies-map)
   :config
   (require 'org-roam-dailies) ;; Ensure the keymap is available
+  (setq org-todo-keywords '("TODO" "WORKING" "STOPPED" "DONE"))
 )
 
 (use-package expand-region
   :ensure t
   :bind (("C-=" . er/expand-region)
 	       ("C--" . er/contract-region)))
+
+(use-package restclient :ensure t)
+
+(use-package prettier-js 
+  :ensure t
+  :config
+  (add-hook 'js2-mode-hook 'prettier-js-mode)
+  (add-hook 'web-mode-hook 'prettier-js-mode)
+  (add-hook 'typescript-mode-hook 'prettier-js-mode)
+)

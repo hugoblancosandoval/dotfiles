@@ -13,11 +13,15 @@
 
 (defun my-select-theme (theme)
   (mapc #'disable-theme custom-enabled-themes)
-  (load-theme (cond
+  (if (display-graphic-p)
+      (load-theme
+       (cond
                ((eq theme 'dark) my-dark-theme)
                ((eq theme 'light) my-light-theme)
                (t theme))))
-
+  (load-theme my-light-theme)
+  )
+  
 (defun my-select-theme-if-none-selected (frame)
   (if (and (eq 'x (window-system frame))
            (null (seq-filter (lambda (theme)

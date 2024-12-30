@@ -30,7 +30,8 @@
   (setq lsp-keymap-prefix "H-l"
         lsp-rust-analyzer-proc-macro-enable t)
   :config
-  (lsp-enable-which-key-integration t))
+  (lsp-enable-which-key-integration t)
+  (setq lsp-clients-typescript-server "/home/binarycorax/.nvm/versions/node/v21.6.1/bin/typescript-language-server"))
 
 (use-package lsp-ui
   :init
@@ -55,6 +56,8 @@
   :mode "\\.\\([jt]sx\\)\\'")
 
 (use-package typescript-mode
-  :defer)
+  :defer
+  :config
+  (setq typescript-indent-level 2))
 
 (use-package json-mode :ensure t)

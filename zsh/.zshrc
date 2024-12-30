@@ -109,6 +109,7 @@ alias gs="git status"
 alias edit="emacsclient -t"
 alias pbcopy='xclip -selection clipboard'
 alias pbpaste='xclip -selection clipboard -o'
+alias t='tmux'
 
 export EDITOR="emacsclient -t"
 

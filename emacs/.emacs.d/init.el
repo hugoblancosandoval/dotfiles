@@ -120,8 +120,8 @@
 
   ;; We won't set these, but they're good to know about
   ;;
-  ;; (setq-default indent-tabs-mode nil)
-  ;; (setq-default tab-width 4)
+  (setq-default indent-tabs-mode nil)
+  (setq-default tab-width 2)
 
   ;; Misc. UI tweaks
   (blink-cursor-mode -1)                                ; Steady cursor
@@ -189,4 +189,7 @@
 
 (load-file (expand-file-name "packages.el" user-emacs-directory))
 (load-file (expand-file-name "programming.el" user-emacs-directory))
-(load-file (expand-file-name "themes.el" user-emacs-directory))
+
+(add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
+                                        ;(load-theme 'zenburn t)
+(load-theme 'weyland-yutani)
